@@ -26,6 +26,7 @@
 #include <linux/errno.h>
 #include <linux/sched.h>
 #include <linux/vmalloc.h>
+#include <linux/printk.h>
 
 #include "libxdma.h"
 #include "libxdma_api.h"
@@ -1304,6 +1305,8 @@ static irqreturn_t user_irq_service(int irq, struct xdma_user_irq *user_irq)
 
 	if (user_irq->handler)
 		return user_irq->handler(user_irq->user_idx, user_irq->dev);
+  else
+    printk("No handler, yo!\n");
 
 	spin_lock_irqsave(&(user_irq->events_lock), flags);
 	if (!user_irq->events_irq) {
@@ -1726,19 +1729,29 @@ static int msi_msix_capable(struct pci_dev *dev, int type)
 	struct pci_bus *bus;
 	int ret;
 
-	if (!dev || dev->no_msi)
+  printk("***********CHECKING MSIX CAPABILITIES**************\n");
+
+	if (!dev || dev->no_msi) {
+    printk("no_msi for you!\n");
 		return 0;
+  }
 
 	for (bus = dev->bus; bus; bus = bus->parent)
-		if (bus->bus_flags & PCI_BUS_FLAGS_NO_MSI)
+		if (bus->bus_flags & PCI_BUS_FLAGS_NO_MSI) {
+      printk("My bus isn't havin' any of that MSI bull.\n");
 			return 0;
+    }
 
 	ret = arch_msi_check_device(dev, 1, type);
-	if (ret)
+	if (ret) {
+    printk("Failed the arch_msi_check_device call\n");
 		return 0;
+  }
 
-	if (!pci_find_capability(dev, type))
+	if (!pci_find_capability(dev, type)) {
+    printk("Couldn't find the capability in my heart. Too bad.\n");
 		return 0;
+  }
 
 	return 1;
 }
@@ -1997,6 +2010,7 @@ static int irq_msix_user_setup(struct xdma_dev *xdev)
 	int i;
 	int j = xdev->h2c_channel_max + xdev->c2h_channel_max;
 	int rv = 0;	
+  printk("*********** Entered irq_msix_user_setup(). Oh my! ************\n");
 
 	/* vectors set in probe_scan_for_msi() */
 	for (i = 0; i < xdev->user_max; i++, j++) {
@@ -2093,9 +2107,11 @@ static void irq_teardown(struct xdma_dev *xdev)
 
 static int irq_setup(struct xdma_dev *xdev, struct pci_dev *pdev)
 {
+  printk("*****************************IRQ_SETUP BITCHES*****************************\n");
 	pci_keep_intx_enabled(pdev);
 
 	if (xdev->msix_enabled) {
+    printk("Yo, I'm about to enable MSIX mode, whatever that means.\n");
 		int rv = irq_msix_channel_setup(xdev);
 		if (rv)
 			return rv;
@@ -2106,8 +2122,12 @@ static int irq_setup(struct xdma_dev *xdev, struct pci_dev *pdev)
 		prog_irq_msix_user(xdev, 0);
 
 		return 0;
-	} else if (xdev->msi_enabled)
+	} else if (xdev->msi_enabled) {
+    printk("Hey, how about MSI mode. I heard it's dope.\n");
 		return irq_msi_setup(xdev, pdev);
+  } else {
+    printk("Why did I even come in here, I guess I'm doing legacy setup.\n");
+  }
 
 	return irq_legacy_setup(xdev, pdev);
 }
@@ -3376,6 +3396,7 @@ static int set_dma_mask(struct pci_dev *pdev)
 		/* query for DMA transfer */
 		/* @see Documentation/DMA-mapping.txt */
 		dbg_init("pci_set_dma_mask()\n");
+    pr_err("OMG! I'm talking through the KERNEL!!!!!!\n");
 		/* use 64-bit DMA */
 		dbg_init("Using a 64-bit DMA mask.\n");
 		/* use 32-bit DMA for descriptors */
