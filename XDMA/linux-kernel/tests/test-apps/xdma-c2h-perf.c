@@ -31,7 +31,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#define MAX_TRANSFER_SIZE (100 * 1024 * 1024)
+//#define MAX_TRANSFER_SIZE (100 * 1024 * 1024)
+#define MAX_TRANSFER_SIZE (50 * 1024 * 1024)
 
 int main(int argc, char **argv)
 {
