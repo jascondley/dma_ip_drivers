@@ -32,7 +32,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#define MAX_TRANSFER_SIZE (100 * 1024 * 1024)
+//#define MAX_TRANSFER_SIZE (100 * 1024 * 1024)
+#define MAX_TRANSFER_SIZE (50 * 1024 * 1024)
 
 int main(int argc, char **argv)
 {
@@ -53,8 +54,9 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	int CHUNK_SAMPLES = 27;  // Try chunk size 2^1 through 2^CHUNK_SAMPLES
-	int NUM_AVERAGES = 2;   // Number of tests at each chunk size
+	//int CHUNK_SAMPLES = 27;  // Try chunk size 2^1 through 2^CHUNK_SAMPLES
+	int CHUNK_SAMPLES = 26;  // Try chunk size 2^1 through 2^CHUNK_SAMPLES
+	int NUM_AVERAGES = 10;   // Number of tests at each chunk size
 
 	uint64_t len_array[CHUNK_SAMPLES];
 	for (int i = 0; i < CHUNK_SAMPLES; i++) {
@@ -77,7 +79,7 @@ int main(int argc, char **argv)
 			return 1;
 		}
 
-		for (int j = 0; j < 10; j++) {
+		for (int j = 0; j < NUM_AVERAGES; j++) {
 			off_t rc = lseek(fd, 0x80000000, SEEK_SET);
 			if (rc < 0) {
 				perror("lseek() failed");

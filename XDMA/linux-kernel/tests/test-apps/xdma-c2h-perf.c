@@ -53,8 +53,9 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	int CHUNK_SAMPLES = 27;  // Try chunk size 2^1 through 2^CHUNK_SAMPLES
-	int NUM_AVERAGES = 2;   // Number of tests at each chunk size
+	int CHUNK_SAMPLES = 26;  // Try chunk size 2^1 through 2^CHUNK_SAMPLES
+	//int CHUNK_SAMPLES = 27;  // Try chunk size 2^1 through 2^CHUNK_SAMPLES
+	int NUM_AVERAGES = 10;   // Number of tests at each chunk size
 
 	uint64_t len_array[CHUNK_SAMPLES];
 	for (int i = 0; i < CHUNK_SAMPLES; i++) {

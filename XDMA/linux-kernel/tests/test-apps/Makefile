@@ -38,10 +38,16 @@ TARGETS :=
 TARGETS += xdma-malloc
 TARGETS += xdma-h2c-perf
 TARGETS += xdma-c2h-perf
+TARGETS += cuda-babe
+
 default: $(TARGETS)
 
 xdma%: xdma%.c Makefile
 	$(CC) $(CFLAGS) -o $@ $< -lm
 
+cuda-babe: cuda-babe.cu Makefile
+	$(NVCC) $(addprefix -Xcompiler ,$(CFLAGS)) -o $@ $< -l cuda
+
 clean:
 	rm -f $(TARGETS)
+
