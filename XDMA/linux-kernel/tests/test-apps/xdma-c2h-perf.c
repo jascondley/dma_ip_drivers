@@ -30,9 +30,10 @@
 #include <math.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <math.h>
 
 //#define MAX_TRANSFER_SIZE (100 * 1024 * 1024)
-#define MAX_TRANSFER_SIZE (50 * 1024 * 1024)
+#define MAX_TRANSFER_SIZE (8 * 1024 * 1024)
 
 int main(int argc, char **argv)
 {
@@ -53,9 +54,8 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	int CHUNK_SAMPLES = 26;  // Try chunk size 2^1 through 2^CHUNK_SAMPLES
-	//int CHUNK_SAMPLES = 27;  // Try chunk size 2^1 through 2^CHUNK_SAMPLES
-	int NUM_AVERAGES = 10;   // Number of tests at each chunk size
+	int CHUNK_SAMPLES = log(MAX_TRANSFER_SIZE) / log(2);
+	int NUM_AVERAGES = 100;   // Number of tests at each chunk size
 
 	uint64_t len_array[CHUNK_SAMPLES];
 	for (int i = 0; i < CHUNK_SAMPLES; i++) {
