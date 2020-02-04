@@ -3493,7 +3493,8 @@ ssize_t xdma_xfer_submit(void *dev_hndl, int channel, bool write, u64 ep_addr,
 	}
 
 	if (!dma_mapped) {
-		nents = pci_map_sg(xdev->pdev, sg, sgt->orig_nents, dir);
+		//nents = pci_map_sg(xdev->pdev, sg, sgt->orig_nents, dir);
+		nents = dma_map_sg(&xdev->pdev->dev, sg, sgt->orig_nents, dir);
 		if (!nents) {
 			pr_info("map sgl failed, sgt 0x%p.\n", sgt);
 			return -EIO;
@@ -3674,7 +3675,8 @@ ssize_t xdma_xfer_submit(void *dev_hndl, int channel, bool write, u64 ep_addr,
 
 unmap_sgl:
 	if (!dma_mapped && sgt->nents) {
-		pci_unmap_sg(xdev->pdev, sgt->sgl, sgt->orig_nents, dir);
+		dma_unmap_sg(&xdev->pdev->dev, sgt->sgl, sgt->orig_nents, dir);
+		//pci_unmap_sg(xdev->pdev, sgt->sgl, sgt->orig_nents, dir);
 		sgt->nents = 0;
 	}
 
@@ -3800,7 +3802,8 @@ ssize_t xdma_xfer_completion(void *cb_hndl, void *dev_hndl, int channel, bool wr
 
 unmap_sgl:
 	if (!dma_mapped && sgt->nents) {
-		pci_unmap_sg(xdev->pdev, sgt->sgl, sgt->orig_nents, dir);
+		dma_unmap_sg(&xdev->pdev->dev, sgt->sgl, sgt->orig_nents, dir);
+		//pci_unmap_sg(xdev->pdev, sgt->sgl, sgt->orig_nents, dir);
 		sgt->nents = 0;
 	}
 
@@ -3875,7 +3878,8 @@ ssize_t xdma_xfer_submit_nowait(void *cb_hndl, void *dev_hndl, int channel, bool
 	}
 
 	if (!dma_mapped) {
-		nents = pci_map_sg(xdev->pdev, sg, sgt->orig_nents, dir);
+		nents = dma_map_sg(&xdev->pdev->dev, sg, sgt->orig_nents, dir);
+		//nents = pci_map_sg(xdev->pdev, sg, sgt->orig_nents, dir);
 		if (!nents) {
 			pr_info("map sgl failed, sgt 0x%p.\n", sgt);
 			return -EIO;
@@ -3915,7 +3919,8 @@ ssize_t xdma_xfer_submit_nowait(void *cb_hndl, void *dev_hndl, int channel, bool
 			pr_info("transfer_init failed\n");
 
 			if (!dma_mapped && sgt->nents) {
-					pci_unmap_sg(xdev->pdev, sgt->sgl, sgt->orig_nents, dir);
+					dma_unmap_sg(&xdev->pdev->dev, sgt->sgl, sgt->orig_nents, dir);
+					//pci_unmap_sg(xdev->pdev, sgt->sgl, sgt->orig_nents, dir);
 					sgt->nents = 0;
 				}
 
@@ -3962,7 +3967,8 @@ ssize_t xdma_xfer_submit_nowait(void *cb_hndl, void *dev_hndl, int channel, bool
 
 unmap_sgl:
 	if (!dma_mapped && sgt->nents) {
-		pci_unmap_sg(xdev->pdev, sgt->sgl, sgt->orig_nents, dir);
+		dma_unmap_sg(&xdev->pdev->dev, sgt->sgl, sgt->orig_nents, dir);
+		//pci_unmap_sg(xdev->pdev, sgt->sgl, sgt->orig_nents, dir);
 		sgt->nents = 0;
 	}
 
@@ -5099,7 +5105,8 @@ static void sgt_free_with_pages(struct sg_table *sgt, int dir,
 
 		if (pg) {
 			if (pdev)
-				pci_unmap_page(pdev, bus, PAGE_SIZE, dir);
+				dma_unmap_page(&pdev->dev, bus, PAGE_SIZE, dir);
+				//pci_unmap_page(pdev, bus, PAGE_SIZE, dir);
 			__free_page(pg);
 		} else
 			break;
@@ -5130,7 +5137,8 @@ static int sgt_alloc_with_pages(struct sg_table *sgt, unsigned int npages,
 
 		if (pdev) {
 			dma_addr_t bus =
-				pci_map_page(pdev, pg, 0, PAGE_SIZE, dir);
+				dma_map_page(&pdev->dev, pg, 0, PAGE_SIZE, dir);
+				//pci_map_page(pdev, pg, 0, PAGE_SIZE, dir);
 			if (unlikely(pci_dma_mapping_error(pdev, bus))) {
 				pr_info("%d/%u, page 0x%p map err.\n", i,
 					npages, pg);
