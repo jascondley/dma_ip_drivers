@@ -49,9 +49,6 @@
 /* maximum amount of register space to map */
 #define XDMA_BAR_SIZE (0x8000UL)
 
-/* Use this definition to poll several times between calls to schedule */
-#define NUM_POLLS_PER_SCHED 100
-
 #define XDMA_CHANNEL_NUM_MAX (4)
 /*
  * interrupts per engine, rad2_vul.sv:237
@@ -410,8 +407,6 @@ struct sw_desc {
 struct xdma_transfer {
 	struct list_head entry;		/* queue of non-completed transfers */
 	struct xdma_desc *desc_virt;	/* virt addr of the 1st descriptor */
-	struct xdma_result *res_virt; /* virt addr of result for c2h streaming */
-	dma_addr_t res_bus;			  /* bus addr for result descriptors */
 	dma_addr_t desc_bus;		/* bus addr of the first descriptor */
 	int desc_adjacent;		/* adjacent descriptors at desc_bus */
 	int desc_num;			/* number of descriptors in transfer */
@@ -426,7 +421,6 @@ struct xdma_transfer {
 	enum transfer_state state;	/* state of the transfer */
 	unsigned int flags;
 #define XFER_FLAG_NEED_UNMAP	0x1
-	int cyclic;			/* flag if transfer is cyclic */
 	int last_in_request;		/* flag if last within request */
 	unsigned int len;
 	struct sg_table *sgt;
@@ -479,27 +473,9 @@ struct xdma_engine {
 	/* Transfer list management */
 	struct list_head transfer_list;	/* queue of transfers */
 
-	/* Members applicable to AXI-ST C2H (cyclic) transfers */
-	struct xdma_result *cyclic_result;
-	dma_addr_t cyclic_result_bus;	/* bus addr for transfer */
-	struct xdma_request_cb *cyclic_req;
-	struct sg_table cyclic_sgt;
-    u8 *perf_buf_virt;
-    dma_addr_t perf_buf_bus; /* bus address */
-	u8 eop_found; /* used only for cyclic(rx:c2h) */
-	int eop_count;
-	int rx_tail;	/* follows the HW */
-	int rx_head;	/* where the SW reads from */
-	int rx_overrun;	/* flag if overrun occured */
-
-	/* for copy from cyclic buffer to user buffer */
-	unsigned int user_buffer_index;
-
-	/* Members associated with polled mode support */
-	u8 *poll_mode_addr_virt;	/* virt addr for descriptor writeback */
-	dma_addr_t poll_mode_bus;	/* bus addr for descriptor writeback */
-
-	/* Members associated with interrupt mode support */
+  u8 *perf_buf_virt;
+  dma_addr_t perf_buf_bus; /* bus address */
+  /* Members associated with interrupt mode support */
 #if	KERNEL_VERSION(4, 6, 0) <= LINUX_VERSION_CODE
 	struct swait_queue_head shutdown_wq;
 #else
@@ -516,21 +492,6 @@ struct xdma_engine {
 	struct xdma_desc *desc;
 	int desc_idx;			/* current descriptor index */
 	int desc_used;			/* total descriptors used */
-
-	/* for performance test support */
-	struct xdma_performance_ioctl *xdma_perf;	/* perf test control */
-#if	KERNEL_VERSION(4, 6, 0) <= LINUX_VERSION_CODE
-	struct swait_queue_head xdma_perf_wq;
-#else
-	wait_queue_head_t xdma_perf_wq;	/* Perf test sync */
-#endif
-
-	struct xdma_kthread *cmplthp;
-	/* completion status thread list for the queue */
-	struct list_head cmplthp_list;
-	/* pending work thread list */
-	/* cpu attached to intr_work */
-	unsigned int intr_work_cpu;
 };
 
 struct xdma_user_irq {
@@ -649,13 +610,4 @@ struct xdma_dev *xdev_find_by_pdev(struct pci_dev *pdev);
 void xdma_device_offline(struct pci_dev *pdev, void *dev_handle);
 void xdma_device_online(struct pci_dev *pdev, void *dev_handle);
 
-int xdma_performance_submit(struct xdma_dev *xdev, struct xdma_engine *engine);
-struct xdma_transfer *engine_cyclic_stop(struct xdma_engine *engine);
-void enable_perf(struct xdma_engine *engine);
-void get_perf_stats(struct xdma_engine *engine);
-
-ssize_t xdma_engine_read_cyclic(struct xdma_engine *engine,
-		char __user *buf, size_t count, int timeout_ms);
-int engine_addrmode_set(struct xdma_engine *engine, unsigned long arg);
-int engine_service_poll(struct xdma_engine *engine, u32 expected_desc_count);
 #endif /* XDMA_LIB_H */

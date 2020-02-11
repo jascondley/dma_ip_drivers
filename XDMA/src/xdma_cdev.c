@@ -1,7 +1,7 @@
 /*
  * This file is part of the Xilinx DMA IP Core driver for Linux
  *
- * Copyright (c) 2016-present,  Xilinx, Inc.
+ * Copyright (c) 2016-present,	Xilinx, Inc.
  * All rights reserved.
  *
  * This source code is free software; you can redistribute it and/or modify it
@@ -10,14 +10,14 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.	See the GNU General Public License for
  * more details.
  *
  * The full GNU General Public License is included in this distribution in
  * the file called "COPYING".
  */
 
-#define pr_fmt(fmt)     KBUILD_MODNAME ":%s: " fmt, __func__
+#define pr_fmt(fmt)		 KBUILD_MODNAME ":%s: " fmt, __func__
 
 #include "xdma_cdev.h"
 
@@ -526,18 +526,16 @@ int xdma_cdev_init(void)
 		return -1;
 	}
 
-    /* using kmem_cache_create to enable sequential cleanup */
-    cdev_cache = kmem_cache_create("cdev_cache",
-                                   sizeof(struct cdev_async_io),
-                                   0,
-                                   SLAB_HWCACHE_ALIGN,
-                                   NULL);
-    if (!cdev_cache) {
-    	pr_info("memory allocation for cdev_cache failed. OOM\n");
-    	return -ENOMEM;
-    }
-
-   	xdma_threads_create(8);
+	/* using kmem_cache_create to enable sequential cleanup */
+	cdev_cache = kmem_cache_create("cdev_cache",
+																 sizeof(struct cdev_async_io),
+																 0,
+																 SLAB_HWCACHE_ALIGN,
+																 NULL);
+	if (!cdev_cache) {
+		pr_info("memory allocation for cdev_cache failed. OOM\n");
+		return -ENOMEM;
+	}
 
 	return 0;
 }
@@ -549,6 +547,5 @@ void xdma_cdev_cleanup(void)
 
 	if (g_xdma_class)
 		class_destroy(g_xdma_class);
-
-	xdma_threads_destroy();
 }
+

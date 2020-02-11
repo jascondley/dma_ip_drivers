@@ -62,10 +62,6 @@ struct xdma_performance_ioctl {
 
 /* IOCTL codes */
 
-#define IOCTL_XDMA_PERF_START   _IOW('q', 1, struct xdma_performance_ioctl *)
-#define IOCTL_XDMA_PERF_STOP    _IOW('q', 2, struct xdma_performance_ioctl *)
-#define IOCTL_XDMA_PERF_GET     _IOR('q', 3, struct xdma_performance_ioctl *)
-#define IOCTL_XDMA_ADDRMODE_SET _IOW('q', 4, int)
 #define IOCTL_XDMA_ADDRMODE_GET _IOR('q', 5, int)
 #define IOCTL_XDMA_ALIGN_GET    _IOR('q', 6, int)
 
