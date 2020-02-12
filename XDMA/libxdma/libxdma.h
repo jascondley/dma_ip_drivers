@@ -31,9 +31,6 @@
 #include <linux/kernel.h>
 #include <linux/pci.h>
 #include <linux/workqueue.h>
-#if	KERNEL_VERSION(4, 6, 0) <= LINUX_VERSION_CODE
-#include <linux/swait.h>
-#endif
 /*
  *  if the config bar is fixed, the driver does not neeed to search through
  *  all of the bars
@@ -412,11 +409,7 @@ struct xdma_transfer {
 	int desc_num;			/* number of descriptors in transfer */
 	int desc_index;			/* index for first descriptor in transfer */
 	enum dma_data_direction dir;
-#if	KERNEL_VERSION(4, 6, 0) <= LINUX_VERSION_CODE
-	struct swait_queue_head wq;
-#else
 	wait_queue_head_t wq;		/* wait queue for transfer completion */
-#endif
 
 	enum transfer_state state;	/* state of the transfer */
 	unsigned int flags;
@@ -476,11 +469,7 @@ struct xdma_engine {
   u8 *perf_buf_virt;
   dma_addr_t perf_buf_bus; /* bus address */
   /* Members associated with interrupt mode support */
-#if	KERNEL_VERSION(4, 6, 0) <= LINUX_VERSION_CODE
-	struct swait_queue_head shutdown_wq;
-#else
 	wait_queue_head_t shutdown_wq;	/* wait queue for shutdown sync */
-#endif
 	spinlock_t lock;		/* protects concurrent access */
 	int prev_cpu;			/* remember CPU# of (last) locker */
 	int msix_irq_line;		/* MSI-X vector for this engine */

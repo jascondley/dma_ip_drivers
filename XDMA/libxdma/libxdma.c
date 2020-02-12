@@ -654,11 +654,7 @@ static int engine_service_shutdown(struct xdma_engine *engine)
 	engine->running = 0;
 
 	/* awake task on engine's shutdown wait queue */
-#if KERNEL_VERSION(4, 6, 0) <= LINUX_VERSION_CODE
-	swake_up(&engine->shutdown_wq);
-#else
 	wake_up_interruptible(&engine->shutdown_wq);
-#endif
 	return 0;
 }
 
@@ -678,11 +674,7 @@ static struct xdma_transfer *engine_transfer_completion(
 
 	/* synchronous I/O? */
 	/* awake task on transfer's wait queue */
-#if KERNEL_VERSION(4, 6, 0) <= LINUX_VERSION_CODE
-	swake_up(&transfer->wq);
-#else
 	wake_up_interruptible(&transfer->wq);
-#endif
 
 	/* Send completion notification for Last transfer */
 	if (transfer->cb && transfer->last_in_request)
@@ -870,11 +862,7 @@ static int engine_service_resume(struct xdma_engine *engine)
 		} else if (engine->shutdown & ENGINE_SHUTDOWN_REQUEST) {
 			engine->shutdown |= ENGINE_SHUTDOWN_IDLE;
 			/* awake task on engine's shutdown wait queue */
-#if KERNEL_VERSION(4, 6, 0) <= LINUX_VERSION_CODE
-			swake_up(&engine->shutdown_wq);
-#else
 			wake_up_interruptible(&engine->shutdown_wq);
-#endif
 		} else {
 			dbg_tfr("no pending transfers, %s engine stays idle.\n",
 				engine->name);
@@ -2496,11 +2484,7 @@ static int transfer_init(struct xdma_engine *engine, struct xdma_request_cb *req
 	/* lock the engine state */
 	spin_lock_irqsave(&engine->lock, flags);
 	/* initialize wait queue */
-#if	LINUX_VERSION_CODE >= KERNEL_VERSION(4,6,0)
-	init_swait_queue_head(&xfer->wq);
-#else
 	init_waitqueue_head(&xfer->wq);
-#endif
 
 	/* remember direction of transfer */
 	xfer->dir = engine->dir;
@@ -2795,17 +2779,10 @@ ssize_t xdma_xfer_submit(void *dev_hndl, int channel, bool write, u64 ep_addr,
 		 * When polling, determine how many descriptors have been queued
 		 * on the engine to determine the writeback value expected
 		 */
-#if KERNEL_VERSION(4, 6, 0) <= LINUX_VERSION_CODE
-		swait_event_interruptible_timeout(
-			xfer->wq,
-			(xfer->state != TRANSFER_STATE_SUBMITTED),
-			msecs_to_jiffies(timeout_ms));
-#else
 		wait_event_interruptible_timeout(
 			xfer->wq,
 			(xfer->state != TRANSFER_STATE_SUBMITTED),
 			msecs_to_jiffies(timeout_ms));
-#endif
 
 		spin_lock_irqsave(&engine->lock, flags);
 
@@ -3219,11 +3196,7 @@ static struct xdma_dev *alloc_dev_instance(struct pci_dev *pdev)
 		//spin_lock_init(&engine->desc_lock);
 		mutex_init(&engine->desc_lock);
 		INIT_LIST_HEAD(&engine->transfer_list);
-#if KERNEL_VERSION(4, 6, 0) <= LINUX_VERSION_CODE
-		init_swait_queue_head(&engine->shutdown_wq);
-#else
 		init_waitqueue_head(&engine->shutdown_wq);
-#endif
 	}
 
 	engine = xdev->engine_c2h;
@@ -3232,11 +3205,7 @@ static struct xdma_dev *alloc_dev_instance(struct pci_dev *pdev)
 		//spin_lock_init(&engine->desc_lock);
 		mutex_init(&engine->desc_lock);
 		INIT_LIST_HEAD(&engine->transfer_list);
-#if KERNEL_VERSION(4, 6, 0) <= LINUX_VERSION_CODE
-		init_swait_queue_head(&engine->shutdown_wq);
-#else
 		init_waitqueue_head(&engine->shutdown_wq);
-#endif
 	}
 
 	return xdev;
