@@ -31,8 +31,8 @@
 #include "version.h"
 
 #define DRV_MODULE_NAME		"xdma"
-#define DRV_MODULE_DESC		"Xilinx XDMA Reference Driver"
-#define DRV_MODULE_RELDATE	"Feb. 2018"
+#define DRV_MODULE_DESC		"Zendar's Modified Xilinx XDMA Reference Driver"
+#define DRV_MODULE_RELDATE	"Feb. 2020"
 
 static char version[] =
 	DRV_MODULE_DESC " " DRV_MODULE_NAME " v" DRV_MODULE_VERSION "\n";
