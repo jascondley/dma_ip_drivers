@@ -261,9 +261,19 @@ struct xdma_io_cb {
 
 struct config_regs {
 	u32 identifier;
-	u32 reserved_1[4];
+	u32 bus_dev;
+	u32 max_payload_size;
+	u32 max_read_request_size;
+	u32 system_id;
 	u32 msi_enable;
-};
+	u32 pci_data_width;
+	u32 pci_control;
+	u32 reserved1[8];
+	u32 axi_user_max_payload_size;
+	u32 axi_user_max_read_request_size;
+	u32 reserved2[6];
+	u32 write_flush_timeout;
+} __packed;
 
 /**
  * SG DMA Controller status and control registers

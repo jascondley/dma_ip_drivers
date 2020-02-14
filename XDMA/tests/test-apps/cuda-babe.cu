@@ -126,7 +126,8 @@ int main(int argc, char **argv)
   ce = cudaMallocManaged(&src_d, SURFACE_SIZE * sizeof(*src_d));
 
   if (ce != cudaSuccess) {
-    fprintf(stderr, "Allocation of src_d failed: %d\n", ce);
+    fprintf(stderr, "Allocation of src_d failed: %s\n",
+      cudaGetErrorString(ce));
     return 1;
   }
 

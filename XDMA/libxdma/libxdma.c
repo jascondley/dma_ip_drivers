@@ -220,6 +220,15 @@ static void check_nonzero_interrupt_status(struct xdma_dev *xdev)
 			dev_name(&xdev->pdev->dev), xdev->idx, w);
 }
 
+/* Disable relaxed ordering */
+static void disable_relaxed_ordering(struct xdma_dev *xdev)
+{
+	struct config_regs *reg =
+		(struct config_regs *)(xdev->bar[xdev->config_bar_idx] +
+			XDMA_OFS_CONFIG);
+	write_register(0, &reg->pci_control, XDMA_OFS_CONFIG);
+}
+
 /* channel_interrupts_enable -- Enable interrupts we are interested in */
 static void channel_interrupts_enable(struct xdma_dev *xdev, u32 mask)
 {
@@ -3471,7 +3480,7 @@ void *xdma_device_open(const char *mname, struct pci_dev *pdev, int *user_max,
 	pci_check_intr_pend(pdev);
 
 	/* enable relaxed ordering */
-	pci_enable_capability(pdev, PCI_EXP_DEVCTL_RELAX_EN);
+	//pci_enable_capability(pdev, PCI_EXP_DEVCTL_RELAX_EN);
 
 	/* enable extended tag */
 	pci_enable_capability(pdev, PCI_EXP_DEVCTL_EXT_TAG);
@@ -3497,6 +3506,7 @@ void *xdma_device_open(const char *mname, struct pci_dev *pdev, int *user_max,
 	if (rv)
 		goto err_mask;
 
+	disable_relaxed_ordering(xdev);
 	check_nonzero_interrupt_status(xdev);
 	/* explicitely zero all interrupt enable masks */
 	channel_interrupts_disable(xdev, ~0);

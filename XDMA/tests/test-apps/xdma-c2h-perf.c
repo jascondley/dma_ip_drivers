@@ -32,8 +32,8 @@
 #include <sys/types.h>
 #include <math.h>
 
-//#define MAX_TRANSFER_SIZE (100 * 1024 * 1024)
-#define MAX_TRANSFER_SIZE (8 * 1024 * 1024)
+#define MAX_TRANSFER_SIZE (100 * 1024 * 1024)
+//#define MAX_TRANSFER_SIZE (8 * 1024 * 1024)
 
 int main(int argc, char **argv)
 {
@@ -68,7 +68,7 @@ int main(int argc, char **argv)
 	for (int i = 0; i < CHUNK_SAMPLES; i++)
 		time_array[i] = 0;
 
-	for (int i = 0; i < CHUNK_SAMPLES; i++) {
+	for (int i = 23; i < CHUNK_SAMPLES; i++) {
 		transfer_size = len_array[i];
 		printf("Test transfer size = %lu\n", transfer_size);
 
